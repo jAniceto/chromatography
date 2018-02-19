@@ -5,9 +5,15 @@ A suite of chromatography programms: Breakthrough curve modelling, isotherm dete
 ## Breif description of each function
 * `gaussPeakFit` - Fits a gaussian curve to the data provided. Works for any number of peaks.
 * `gaussPeakFit_1p` - Same as gaussPeakFit but is a simpler version that only works for one peak.
-* `fitModel_isotherm_KLDF` - Fits a chromatographic model to the data provided. Two parameters are fitted: H and KLDF.
-* `LDF_pdepe` - Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and using the Linear Driving Force Model (LDF) approach.
 * `isotherm` - Library of isotherm function. Required in several programs. 
+* `fitModel_isotherm_KLDF` - Fits a chromatographic model to the data provided. Two parameters are fitted: H and KLDF.
+* `LDF_pdepe` - Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and using the Linear Driving Force Model (LDF) approach. Uses the Matlab pdepe function to solve the system of PDEs.
+* `Models/LDF_pdepe_1c.m` - Same as `LDF_pdepe` but only works for one component
+* `Models/LDF_pdepe_2c.m` - Same as `LDF_pdepe` but only works for two components
+* `Models/LDF_df_1c.m` - Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and using the Linear Driving Force Model (LDF) approach. Uses the finite diferences methods to solve the system of PDEs.
+* `Models/EDMlinear_pdepe_1c.m` - Equilibrium-Dispersive Model (EDM) with linear isotherm for single component.
+* `Models/TDMlinear_pdepe_1c.m` - Transport-Dispersive Model (TDM) with linear isotherm for single component.
+* `Models/TMlinear_pdepe_1c.m` - Transport Model (TM) with linear isotherm for single component.
 
 
 ## Detailed description of each function
