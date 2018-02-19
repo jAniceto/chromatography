@@ -7,6 +7,8 @@ function fitModel_isotherm_KLDF(exp_tc, exp_Cfeed, isoType, feedProf, parameter,
 
 
 global spde_count
+addpath('Models/');  % add models subfolder to path
+
 
 %% Default arguments (Example)
 if nargin == 0
