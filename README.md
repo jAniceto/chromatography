@@ -1,5 +1,5 @@
 # chromatography
-A suite of chromatography programms: Breakthrough curve modelling, isotherm determination, parameters fitting...
+A suite of chromatography programms including breakthrough curve modelling, isotherm determination, parameters fitting, chromatographic peak fitting and peak deconvolution, and more...
 
 
 ## Breif description of each function
@@ -16,7 +16,8 @@ A suite of chromatography programms: Breakthrough curve modelling, isotherm dete
 * `Models/TMlinear_pdepe_1c.m` - Transport Model (TM) with linear isotherm for single component.
 
 
-## Detailed description of each function
+## Detailed description of the main functions
+
 
 ### **gaussPeakFit**
 
