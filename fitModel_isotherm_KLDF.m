@@ -5,9 +5,7 @@ function fitModel_isotherm_KLDF(exp_tc, exp_Cfeed, isoType, feedProf, parameter,
 % and exp_tc to include additional data. Parameters are fitted to all data
 % simultaneously.
 
-
 global spde_count
-addpath('Models/');  % add models subfolder to path
 
 
 %% Default arguments (Example)
@@ -81,6 +79,7 @@ end
 
 
 %% Calculations
+addpath('Models/');  % add models subfolder to path
 tic
 data = struct('isoType',isoType, 'feedProf',feedProf, 'L',L, 'Di',Di, 'epsb',epsb, 'Q',Q, 'tpulse',tpulse, 'tfinal',tfinal, 'Dax',Dax);
 exp = struct('Cfeed',exp_Cfeed);

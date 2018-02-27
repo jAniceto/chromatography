@@ -30,6 +30,7 @@ end
 
 
 %% Calculations
+addpath('../')
 data = struct('feedProf',feedProf,'H',H,'Cfeed',Cfeed,'npz',opt.npz,'npt',opt.npt,'Q',Q,'epsb',epsb,'epsp',epsp,'tpulse',tpulse,'KLDF',KLDF,'Dax',Dax);
 nc = length(Cfeed);
 data.nc=nc;

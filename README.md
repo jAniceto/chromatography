@@ -18,6 +18,59 @@ A suite of chromatography programms including breakthrough curve modelling, isot
 
 ## Detailed description of the main functions
 
+### **fitModel_isotherm_KLDF**
+fitModel_isotherm_KLDF fits the chromatographic model to the data provided. By default the LDF model with axial dispersion is used (`LDF_pdepe`) and two parameters are fitted: `H`, the linear equilibrium constant and `KLDF`, the linear driving force mass transfer coefficient.
+
+Any number of diferent experiments can be fitted simultaneously usedy expanding `exp_Cfeed` and `exp_tc` to include additional data. Parameters are fitted to all data simultaneously.
+
+##### INPUTS: L, Di, epsb, Q, Dax, tpulse, tfinal, opt
+`exp_tc` : an array containg any number of experimental data sets in matriz form [time concentration]
+
+`exp_Cfeed` : an array containg the feed concentration for each dataset in `exp_tc`.
+
+`isoType` : the isotherm model accordding to the isotherm function. E.g. 'linear'.
+
+`feedProf` : the feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment).
+
+`parameter` : vector cointainig the initial estimations for the parameters to be fitted. E.g. [ H  KLDF(min-1) ].
+
+`L` : column length (cm)
+
+`Di` : column diameter (cm)
+
+`epsb` : bulk porosity
+
+`Q` : flow rate (mL/min)
+
+`Dax` : axial dispersion coefficient (cm2/min)
+
+`tpulse` : feed pulse duration. For a step injection set tpulse = tfinal (min).
+
+`tfinal` : final time for calculation (min)
+
+`opt` : structure containig calculation options: `opt.npz`: number of discretization points in `z`; 
+
+`opt.npt`: number of discretization points in `t`.
+
+
+##### OUTPUTS:
+`parameter` : optimized parameters: [H KLDF]
+
+`exitflag` : optimization status. If exitflag = 1, optimization converged  
+
+`AARD` : absolute average relative deviation for each data set
+
+Figure containing the original data points and the fitted model.
+
+##### Example:
+
+Fitting of a chromatographic peak using LDF model.
+![peak-fit-LDF](examples/peak-fit-LDF.png)
+
+Fitting of three breakthrough experiments using LDF model.
+![breakthough-fit-LDF](examples/breakthough-fit-LDF.png)
+
+---
 
 ### **gaussPeakFit**
 

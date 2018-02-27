@@ -28,6 +28,7 @@ end
 
 
 %% Calculations
+addpath('../')
 data = struct('feedProf',feedProf,'parameter',parameter,'Cfeed',Cfeed,'npz',opt.npz,'npt',opt.npt,'Q',Q,'epsb',epsb,'tpulse',tpulse,'KLDF',KLDF,'Dax',Dax);
 data.isoT = str2func(isotherm);
 nc = length(Cfeed);
