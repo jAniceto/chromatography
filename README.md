@@ -18,12 +18,56 @@ A suite of chromatography programms including breakthrough curve modelling, isot
 
 ## Detailed description of the main functions
 
-### **fitModel_isotherm_KLDF**
+## **LDF_pdepe**
+LDF_pdepe models a chromatographic experiement according to the Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and using the Linear Driving Force Model (LDF) approach (Glauckauf and Coates, 1947). Uses pdepe functin to solve the system of partial differential equations. 
+
+##### INPUTS: 
+`isoType` : the isotherm model accordding to the isotherm function. E.g. 'linear'.
+
+`feedProf` : the feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment).
+
+`parameter` : Matrix containing the isotherm parameters for all components according to the isotherm function.
+
+`L` : column length (cm)
+
+`Di` : column diameter (cm)
+
+`epsb` : bulk porosity
+
+`Q` : flow rate (mL/min)
+
+`Cfeed` : feed concentration
+
+`KLDF` : Linear driving force mass transfer coefficient (min-1)
+
+`Dax` : axial dispersion coefficient (cm2/min)
+
+`tpulse` : feed pulse duration. For a step injection set tpulse = tfinal (min).
+
+`tfinal` : final time for calculation (min)
+
+`opt` : structure containig calculation options: `opt.npz`: number of discretization points in `z`; 
+`opt.npt`: number of discretization points in `t`.
+
+
+##### OUTPUTS:
+
+Figure of the concentration profiles inside the column and concentration history at column outlet (chromatogram).
+
+##### Example:
+
+Concentration profiles inside the column over time for a pulse injection of 3 components.
+![LDF_profile](examples/LDF_profile.png)
+
+
+---
+
+## **fitModel_isotherm_KLDF**
 fitModel_isotherm_KLDF fits the chromatographic model to the data provided. By default the LDF model with axial dispersion is used (`LDF_pdepe`) and two parameters are fitted: `H`, the linear equilibrium constant and `KLDF`, the linear driving force mass transfer coefficient.
 
 Any number of diferent experiments can be fitted simultaneously usedy expanding `exp_Cfeed` and `exp_tc` to include additional data. Parameters are fitted to all data simultaneously.
 
-##### INPUTS: L, Di, epsb, Q, Dax, tpulse, tfinal, opt
+##### INPUTS: 
 `exp_tc` : an array containg any number of experimental data sets in matriz form [time concentration]
 
 `exp_Cfeed` : an array containg the feed concentration for each dataset in `exp_tc`.
@@ -49,7 +93,6 @@ Any number of diferent experiments can be fitted simultaneously usedy expanding 
 `tfinal` : final time for calculation (min)
 
 `opt` : structure containig calculation options: `opt.npz`: number of discretization points in `z`; 
-
 `opt.npt`: number of discretization points in `t`.
 
 
@@ -72,7 +115,7 @@ Fitting of three breakthrough experiments using LDF model.
 
 ---
 
-### **gaussPeakFit**
+## **gaussPeakFit**
 
 gaussPeakFit fits a gaussian curve to the data provided. Works for any number of peaks.
 
