@@ -110,13 +110,13 @@ for i=1:data.ndata
 end
 
 % Plot concentration history at column exit
-figure
+figure(10)
 hold on;
 for j = 1:data.ndata
     plot(exp_tc{j}(:,1),exp_tc{j}(:,2),'o');
 end
 for j = 1:data.ndata
-    plot(t,Conc(:,j),'-');
+    plot(t,Conc(:,j),'-','LineWidth',1.5);
 end
 hold off;
 xlabel('t (min)')
