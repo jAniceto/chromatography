@@ -57,7 +57,7 @@ Figure of the concentration profiles inside the column and concentration history
 ##### Example:
 
 Concentration profiles inside the column over time for a pulse injection of 3 components.
-![LDF_profile](examples/LDF_profile.png)
+![LDF_profile](images/LDF_profile.png)
 
 
 ---
@@ -108,10 +108,10 @@ Figure containing the original data points and the fitted model.
 ##### Example:
 
 Fitting of a chromatographic peak using LDF model.
-![peak-fit-LDF](examples/peak-fit-LDF.png)
+![peak-fit-LDF](images/peak-fit-LDF.png)
 
 Fitting of three breakthrough experiments using LDF model.
-![breakthough-fit-LDF](examples/breakthough-fit-LDF.png)
+![breakthough-fit-LDF](images/breakthough-fit-LDF.png)
 
 ---
 
@@ -177,4 +177,4 @@ AARD = 0.3364
 Area under peak 2 (A) = 7.8238
 ```
 
-![gaussPeakFit_2peaks](examples/gaussPeakFit_2peaks.png)
+![gaussPeakFit_2peaks](images/gaussPeakFit_2peaks.png)

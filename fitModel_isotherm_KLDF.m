@@ -102,7 +102,15 @@ options = optimset('PlotFcns',@optimplotfval,'TolFun',1e-6,'TolX',1e-6);
 [parameter, fval, exitflag] = fminsearch(@fobj, parameter, options, exp, data, opt)
 
 % Calculate concentration history with optimized parameters
-[sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+if strcmp(data.isoType,'linear')
+    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+elseif strcmp(data.isoType,'langmuir')
+    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+elseif strcmp(data.isoType,'linear-langmuir')
+    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+else
+    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
+end
 
 Conc = zeros(length(t),data.ndata);
 for i=1:data.ndata
@@ -154,8 +162,15 @@ toc
 function f = fobj(parameter, exp, data, opt)
 global spde_count
 
-[sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-
+if strcmp(data.isoType,'linear')
+    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+elseif strcmp(data.isoType,'langmuir')
+    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+elseif strcmp(data.isoType,'linear-langmuir')
+    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+else
+    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
+end
 
 % Evaluate ODE solution at the experimental t
 for j = 1:data.ndata
@@ -171,22 +186,5 @@ end
 
 % Info to show at each iteration
 spde_count = spde_count + 1;
-fprintf('spde count = %i  |  fobj = %f  |  [H KLDF] = [%f %f]\n',spde_count, f, parameter(1), parameter(2));
-
-% Show current figure
-% if mod(spde_count,10)==0
-%     t = sol.x';
-%     Conc = zeros(length(t),data.ndata);
-%     for i=1:data.ndata
-%         Conc(:,i) = sol.y(i*opt.npz,:)';
-%     end
-    
-%     figure(5)
-%     clf(5)
-%     plot(exp_tc1(:,1),exp_tc1(:,2),'o',exp_tc2(:,1),exp_tc2(:,2),'o',exp_tc3(:,1),exp_tc3(:,2),'o');
-%     for i=1:data.ndata
-%         hold on
-%         plot(t,Conc(:,i),'-');
-%     end
-%     drawnow;
-% end
+parameters_str = sprintf('%f ', parameter);
+fprintf('spde count = %i  |  fobj = %f  |  parameters = [ %s]\n',spde_count, f, parameters_str);
