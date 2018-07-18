@@ -1,7 +1,9 @@
 function plotIsotherms()
+% PLOTISOTHERMS is demonstrates how the isotherm function works, representing all isotherms available in its isotherms library.
+
+addpath('../');  % add parent folder to path
 
 x = linspace(0, 10, 100)';
-
 
 %% Linear isotherm 
 % Single component: q = H * C

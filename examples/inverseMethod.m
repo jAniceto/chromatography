@@ -1,4 +1,7 @@
-function inverse_method()
+function inverseMethod()
+% INVERSEMETHOD is an example application of the fitModel_isotherm_KLDF
+% program to fit equilibrium and mass transfer parameters to the
+% chromatogram of a chromatographic elution experiment.
 
 parameter = [4.94 0.173 120];  % [ a b  KLDF(min-1) ], initial estimates for optimization
 isoType =   'langmuir';  % isotherm model
