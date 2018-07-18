@@ -13,7 +13,9 @@ global data res
 if nargin == 0
     isoType =   'linear-langmuir';                                                  % isotherm type, can be 'linear' or 'linear-langmuir'
     feedProf =  'pulse';                                                            % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
-    parameter = [5.5*0.13 0.13 1.99 ; 6.5*0.13 0.13 2.50  ; 6.8*0.13 0.13 2.80];    % isotherm parameters (depends on the isotherm model chosen)
+    parameter = [1.99 5.5*0.13 0.13 ; 
+                 2.50 6.5*0.13 0.13 ; 
+                 2.80 6.8*0.13 0.13 ];                                              % isotherm parameters (depends on the isotherm model chosen)
     L =         10;                                                                 % cm, column length
     Di =        1;                                                                  % cm, column internal diameter
     epsb =      0.708;                                                              % column bulk porosity
@@ -114,7 +116,7 @@ function [c,f,s] = pde(x,t,u,DuDx)
 % Main pdepe function describing the system of partial diferential equations
 global data
 
-qast = isotherm(data.isoType, u(1:data.nc), data.parameter);
+qast = isotherm(data.isoType, u(1:data.nc)', data.parameter)';
 
 c_mbf = []; c_mbs = [];
 f_mbf = []; f_mbs = [];
