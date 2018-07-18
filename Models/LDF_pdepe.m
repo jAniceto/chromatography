@@ -11,7 +11,7 @@ global data res
 
 %% Default arguments (Example)
 if nargin == 0
-    isoType =   'linear-langmuir';                                                  % isotherm type, can be 'linear' or 'linear-langmuir'
+    isoType =   'linear-langmuir';                                                  % isotherm type, can be 'linear', 'langmuir' or 'linear-langmuir'
     feedProf =  'pulse';                                                            % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
     parameter = [1.99 5.5*0.13 0.13 ; 
                  2.50 6.5*0.13 0.13 ; 

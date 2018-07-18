@@ -1,4 +1,4 @@
-function sol=LDF_df_1c(isotherm,feedProf,parameter,L,Di,epsb,Q,Cfeed,KLDF,Dax,tpulse,tfinal,opt)
+function sol=LDF_df_1c(isoType, feedProf, parameter, L, Di, epsb, Q, Cfeed, KLDF, Dax, tpulse, tfinal, opt)
 % Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and 
 % using the Linear Driving Force Model (LDF) approach (Glauckauf and Coates, 1947)
 % Choose the isotherm model: linear, linearlangmuir, langmuir
@@ -9,9 +9,9 @@ function sol=LDF_df_1c(isotherm,feedProf,parameter,L,Di,epsb,Q,Cfeed,KLDF,Dax,tp
 
 %% Default arguments (Example)
 if nargin == 0
-    isotherm =  'linearlangmuir';      % isotherm model
+    isoType =   'linear-langmuir';                                                  % isotherm type, can be 'linear', 'langmuir' or 'linear-langmuir'
     feedProf =  'pulse';                % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
-    parameter = [5.5*0.13 0.13 1.99];   % isotherm parameters (depends on the isotherm model chosen)
+    parameter = [1.99 5.5*0.13 0.13];   % isotherm parameters (depends on the isotherm model chosen)
     L =         10;                     % cm, column length
     Di =        1;                      % cm, column internal diameter
     epsb =      0.708;                  % column bulk porosity
@@ -29,8 +29,7 @@ end
 
 %% Calculations
 addpath('../')
-data = struct('feedProf',feedProf,'parameter',parameter,'Cfeed',Cfeed,'npz',opt.npz,'npt',opt.npt,'Q',Q,'epsb',epsb,'tpulse',tpulse,'KLDF',KLDF,'Dax',Dax);
-data.isoT = str2func(isotherm);
+data = struct('isoType',isoType,'feedProf',feedProf,'parameter',parameter,'Cfeed',Cfeed,'npz',opt.npz,'npt',opt.npt,'Q',Q,'epsb',epsb,'tpulse',tpulse,'KLDF',KLDF,'Dax',Dax);
 nc = length(Cfeed);
 data.nc=nc;
 A = pi()*Di^2/4; % cm2
@@ -81,37 +80,25 @@ end
 
 
 
-
 %% Solving PDE using pdepe matlab function
 function DyDt = sedo(t,y,data)
 
 N=data.npz;
 nc=data.nc;
 
-% CC = zeros(N,nc);
-% for j=1:nc
-%     CC(:,j)=y(N*j-N+1:N*j-N+N);
-% end
-% OR %
-CC = reshape(y(1:nc*N),N,nc);
-qast = data.isoT(CC,data.parameter);
-qast = reshape(qast,N*nc,1);
+qast = isotherm(data.isoType, y, data.parameter)';
 
 Cinj = setFeedProfile(data.feedProf,t,data.tpulse,data.Cfeed);
 
-
 DyDt = zeros(2*nc*N,1);
-
 for j=1:nc
     
     y(N*j-N+1) = (2*data.h*data.ui*Cinj(j) - data.Dax(j)*(-y(N*j-N+3)+4*y(N*j-N+2)))/(2*data.h*data.ui-3*data.Dax(j)); % <<< From the boundary condition: z = 0 , C = Cinj + Dax/u * dC/dz
     y(N*j) = 4/3*y(N*j-1)-1/3*y(N*j-2); % <<< From the boundary condition: z = L , dC/dz=0
     
-%     qast = data.isoT(y( (N*j-N+1):(N*j) ),data.parameter);
-    
     % Forward finite differences
     DyDt(N*j-N+1) = data.Dax(j) * 1/(data.h^2)*(-y(N*j-N+4)+4*y(N*j-N+3)-5*y(N*j-N+2)+2*y(N*j-N+1)) - data.ui * 1/(2*data.h)*(-y(N*j-N+3)+4*y(N*j-N+2)-3*y(N*j-N+1)) - data.F * data.KLDF(j) * (qast(N*j-N+1)-y(N*nc+N*j-N+1)); %qast(N*j-N+1)
-    DyDt(N*nc+N*j-N+1) = data.KLDF(j)*(qast(N*j-N+1)-y(N*nc+N*j-N+1));%qast(N*j-N+1)
+    DyDt(N*nc+N*j-N+1) = data.KLDF(j)*(qast(N*j-N+1)-y(N*nc+N*j-N+1));
     
     % Central finite differences
     for i=2:N-1
@@ -121,69 +108,8 @@ for j=1:nc
     
     % Backward finite differences
     DyDt(N*j) = 4/3*DyDt(N*j-1) - 1/3*DyDt(N*j-2); % <<< From the boundary condition: z = L , dC/dz=0;
-    DyDt(N*nc+N*j) = data.KLDF(j)*(qast(N*j)-y(N*nc+N*j));%qast(N*j)
+    DyDt(N*nc+N*j) = data.KLDF(j)*(qast(N*j)-y(N*nc+N*j));
 
-end
-
-
-
-%% Isotherm: Langmuir
-function q=langmuir(c,parameter)
-% Multicomponent competitive Langmuir isotherm
-%    Isotherm:   q1(C1,C2) = a1*C1/(1+b1*C1+b2*C2)
-%    C is the concentration of the components [C1 C2 ... Cn]
-%    parameter is an array containing the Langmuir parameters, like so: [a1 b1 ; a2 b2]
-
-nc = length(c(1,:));
-ndata = length(c(:,1));
-q=zeros(ndata,nc);
-
-langmuirDenominator = 1; % = 1 + b1*C1 + b2*C2 + ... + bn*Cn
-for i = 1:nc
-    langmuirDenominator = langmuirDenominator +  parameter(i,2)*c(:,i);
-end
-
-for i = 1:nc
-    q(:,i) = parameter(i,1)*c(:,i) ./ langmuirDenominator;
-end
-
-
-
-%% Isotherm: Linear-Langmuir
-function q=linearlangmuir(c,parameter)
-% Multicomponent competitive Linear-Langmuir isotherm
-%    Isotherm:   q1(C1,C2) = m1*C1 + a1*C1/(1+b1*C1+b2*C2)
-%    C is the concentration of the components [C1 C2 ... Cn]
-%    parameter is an array containing the Langmuir parameters, like so: [a1 b1 m1; a2 b2 m2]
-
-nc = length(c(1,:));
-ndata = length(c(:,1));
-q=zeros(ndata,nc);
-
-langmuirDenominator = 1; % = 1 + b1*C1 + b2*C2 + ... + bn*Cn
-for i = 1:nc
-    langmuirDenominator = langmuirDenominator +  parameter(i,2)*c(:,i);
-end
-
-for i = 1:nc
-    q(:,i) = parameter(i,3)*c(:,i) + parameter(i,1)*c(:,i) ./ langmuirDenominator;
-end
-
-
-function q=linear(c,parameter)
-% Multicomponent competitive Linear isotherm
-%    Isotherm:   q1(C1) = H1*C1
-%    C is the concentration of the components [C1 C2 ... Cn]
-%    parameter is an array containing the Langmuir parameters, like so: [H1; H2]
-
-nc = length(c(1,:));
-ndata = length(c(:,1));
-q=zeros(ndata,nc);
-
-
-
-for i = 1:nc
-    q(:,i) = parameter(i)*c(:,i);
 end
 
 
