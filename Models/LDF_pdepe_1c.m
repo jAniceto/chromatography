@@ -1,4 +1,4 @@
-function [sol, t, x] = LDF_pdepe_1c(isoType,feedProf,parameter,L,Di,epsb,Q,Cfeed,KLDF,Dax,tpulse,tfinal,opt)
+function [sol, t, x] = LDF_pdepe_1c(isoType, feedProf, parameter, L, Di, epsb, Q, Cfeed, KLDF, Dax, tpulse, tfinal, opt)
 % Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and 
 % using the Linear Driving Force Model (LDF) approach (Glauckauf and Coates, 1947)
 % Change the isotherm model by modifying the isotherm function
@@ -13,7 +13,7 @@ global data res
 if nargin == 0
     isoType =   'linear-langmuir';      % isotherm type, can be 'linear' or 'linear-langmuir'
     feedProf =  'pulse';                % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
-    parameter = [5.5*0.13 0.13 1.99];   % isotherm parameters (depends on the isotherm model chosen)
+    parameter = [1.99 5.5*0.13 0.13];   % isotherm parameters (depends on the isotherm model chosen)
     L =         10;                     % cm, column length
     Di =        1;                      % cm, column internal diameter
     epsb =      0.708;                  % column bulk porosity
@@ -152,24 +152,4 @@ elseif strcmp(feedProf,'step')
     
 else
     error('Invalid feed profile. feedProf must be "step" or "pulse"')
-end
-
-
-%% Isotherm
-function q=isotherm(isoType, c, parameter)
-% Defines the isotherm
-%       Linear isotherm: q1 = H1*C1  , parameter = H
-%       Linear-Langmuir isotherm:   q1(C1,C2) = m1*C1 + a1*C1/(1+b1*C1) , parameter = [a1 b1 m1]
-
-if strcmp(isoType,'linear') 
-    q = parameter*c;
-    
-elseif strcmp(isoType,'langmuir')
-    q = parameter(1)*c/(1+parameter(2)*c);
-    
-elseif strcmp(isoType,'linear-langmuir') 
-    q = parameter(3)*c + parameter(1)*c/(1+parameter(2)*c);
-    
-else
-    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
 end

@@ -11,21 +11,22 @@ global data res
 
 %% Default arguments (Example)
 if nargin == 0
-    isoType =   'linear-langmuir';      % isotherm type, can be 'linear' or 'linear-langmuir'
-    feedProf =  'pulse';                % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
-    parameter = [5.5*0.13 0.13 1.99 ; 6.5*0.13 0.13 2.50]';   % isotherm parameters (depends on the isotherm model chosen)
-    L =         10;                     % cm, column length
-    Di =        1;                      % cm, column internal diameter
-    epsb =      0.708;                  % column bulk porosity
-    Q =         4;                      % mL/min, flow rate
-    Cfeed = 	[0.6*300/50 ; 0.6*300/50];             % g/L, feed concentration
-    KLDF =      [13.3*60/10 ; 8*60/10];             % min-1, linear driving force (LDF) mass transfer coefficient
-    Dax =       [5.57e-3 ; 6.57e-3];              % cm2/min, axial dispersion coefficient
-    tpulse =    50*0.001/4;             % min, feed pulse duration. For a step injection set tpulse = tfinal
-    tfinal =    7;                      % min, final time for calculation
-    opt.npz =   150;                    % number of discretization points in z
-    opt.npt =   100;                    % number of discretization points in t
-    opt.fig =   true;                   % true - show figures; false - do not show figures
+    isoType =   'linear-langmuir';         % isotherm type, can be 'linear' or 'linear-langmuir'
+    feedProf =  'pulse';                   % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
+    parameter = [1.99 5.5*0.13 0.13 ; 
+                 2.50 6.5*0.13 0.13];      % isotherm parameters (depends on the isotherm model chosen)
+    L =         10;                        % cm, column length
+    Di =        1;                         % cm, column internal diameter
+    epsb =      0.708;                     % column bulk porosity
+    Q =         4;                         % mL/min, flow rate
+    Cfeed = 	[0.6*300/50 ; 0.6*300/50]; % g/L, feed concentration
+    KLDF =      [13.3*60/10 ; 8*60/10];    % min-1, linear driving force (LDF) mass transfer coefficient
+    Dax =       [5.57e-3 ; 6.57e-3];       % cm2/min, axial dispersion coefficient
+    tpulse =    50*0.001/4;                % min, feed pulse duration. For a step injection set tpulse = tfinal
+    tfinal =    7;                         % min, final time for calculation
+    opt.npz =   150;                       % number of discretization points in z
+    opt.npt =   100;                       % number of discretization points in t
+    opt.fig =   true;                      % true - show figures; false - do not show figures
 end
 
 
@@ -110,7 +111,7 @@ c = [1 ; 1 ; 1 ; 1];
 
 f = [data.Dax(1) ; data.Dax(2) ; 0 ; 0].* DuDx; 
 
-qast = isotherm(data.isoType, u(1), u(2), data.parameter);
+qast = isotherm(data.isoType, u(1:2)', data.parameter);
 
 s = [-data.ui*DuDx(1)-(1-data.epsb)/data.epsb*data.KLDF(1)*(qast(1)-u(3)) ;
      -data.ui*DuDx(2)-(1-data.epsb)/data.epsb*data.KLDF(2)*(qast(2)-u(4)) ;
@@ -139,6 +140,7 @@ pr = [0 ; 0 ; 0 ; 0];
 qr = [ 1/data.Dax(1) ; 1/data.Dax(2) ; 3.14 ; 3.14 ];
 
 
+
 %% Feed profile 
 function Cinj=setFeedProfile(feedProf, t, tpulse, Cfeed)
 % Defines the feed profile. Can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
@@ -156,28 +158,3 @@ elseif strcmp(feedProf,'step')
 else
     error('Invalid feed profile. feedProf must be "step" or "pulse"')
 end
-
-
-%% Isotherm
-function q=isotherm(isoType, c1, c2, parameter)
-% Defines the isotherm
-%       Linear isotherm: q1 = H1*C1  , parameter = H
-%       Linear-Langmuir isotherm:   q1(C1,C2) = m1*C1 + a1*C1/(1+b1*C1) , parameter = [a1 b1 m1]
-
-
-if strcmp(isoType,'linear') 
-    q = parameter*c;
-    
-elseif strcmp(isoType,'langmuir')
-    q = parameter(1)*c/(1+parameter(2)*c);
-    
-elseif strcmp(isoType,'linear-langmuir')
-%         q = parameter(3)*c + parameter(1)*c/(1+parameter(2)*c);
-        q1 = parameter(3,1)*c1 + parameter(1,1)*c1/(1+parameter(2,1)*c1+parameter(2,2)*c2); 
-        q2 = parameter(3,2)*c2 + parameter(1,2)*c2/(1+parameter(2,1)*c1+parameter(2,2)*c2); 
-    
-else
-    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
-end
-
-q = [q1 ; q2];
