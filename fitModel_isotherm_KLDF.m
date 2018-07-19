@@ -1,4 +1,4 @@
-function fitModel_isotherm_KLDF(exp_tc, exp_Cfeed, isoType, feedProf, parameter, L, Di, epsb, Q, Dax, tpulse, tfinal, opt)
+function fitModel_isotherm_KLDF(exp_tc, exp_Cfeed, isoType, feedProf, parameters, L, Di, epsb, Q, Dax, tpulse, tfinal, opt)
 % Fit the chromatographic model to the data provided
 % Two parameters are fitted: H and KLDF
 % Any number of diferent experiments can be used by expanding the exp_Cfeed
@@ -10,7 +10,7 @@ global spde_count
 
 %% Default arguments (Example)
 if nargin == 0
-    parameter = [2 10];         % [ H  KLDF(min-1) ], initial estimate for optimization
+    parameters = [2 10];        % [ H  KLDF(min-1) ], initial estimate for optimization
     isoType =   'linear';       % isotherm model
     feedProf =  'pulse';        % feed profile, can be 'pulse' (e.g.: chromatografic peak) or 'step' (e.g.: breakthrough experiment)
     L =         25;             % cm, column length
@@ -22,6 +22,7 @@ if nargin == 0
     tfinal =    28;             % min, final time for calculation
     opt.npz =   50;             % number of discretization points in z
     opt.npt =   30;             % number of discretization points in t
+    opt.optim_fig = true;
     
     %% Experimental data:
     exp_Cfeed(1) = 0.100;                % g/L, feed concentration
@@ -99,18 +100,13 @@ end
 % Parameter optimization using fminsearch
 spde_count = 0;
 options = optimset('PlotFcns',@optimplotfval,'TolFun',1e-6,'TolX',1e-6);
-[parameter, fval, exitflag] = fminsearch(@fobj, parameter, options, exp, data, opt)
+[parameters, fval, exitflag] = fminsearch(@fobj, parameters, options, exp, data, opt)
 
-% Calculate concentration history with optimized parameters
-if strcmp(data.isoType,'linear')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-elseif strcmp(data.isoType,'langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-elseif strcmp(data.isoType,'linear-langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-else
-    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
-end
+% Parse optimization parameters into correct format for integration
+[isot_param, KLDF] = parseParameters(data.isoType, parameters);
+
+[sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(data.ndata,1).*isot_param, data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(data.ndata,1).*KLDF, ones(data.ndata,1).*data.Dax, data.tpulse, data.tfinal, opt);
+
 
 Conc = zeros(length(t),data.ndata);
 for i=1:data.ndata
@@ -118,11 +114,13 @@ for i=1:data.ndata
 end
 
 % Plot concentration history at column exit
+close(20)  % closes the figure created in every optimization iteration, if it exists
 figure(10)
 hold on;
 for j = 1:data.ndata
     plot(exp_tc{j}(:,1),exp_tc{j}(:,2),'o');
 end
+ax = gca; ax.ColorOrderIndex = 1;  % reset color order in plot to match experimental and calculated points
 for j = 1:data.ndata
     plot(t,Conc(:,j),'-','LineWidth',1.5);
 end
@@ -159,18 +157,13 @@ toc
 
 
 %% Objective funtion
-function f = fobj(parameter, exp, data, opt)
+function f = fobj(parameters, exp, data, opt)
 global spde_count
 
-if strcmp(data.isoType,'linear')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-elseif strcmp(data.isoType,'langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-elseif strcmp(data.isoType,'linear-langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
-else
-    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
-end
+% Parse optimization parameters into correct format for integration
+[isot_param, KLDF] = parseParameters(data.isoType, parameters);
+
+[sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(data.ndata,1).*isot_param, data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(data.ndata,1).*KLDF, ones(data.ndata,1).*data.Dax, data.tpulse, data.tfinal, opt);
 
 % Evaluate ODE solution at the experimental t
 for j = 1:data.ndata
@@ -186,5 +179,67 @@ end
 
 % Info to show at each iteration
 spde_count = spde_count + 1;
-parameters_str = sprintf('%f ', parameter);
-fprintf('spde count = %i  |  fobj = %f  |  parameters = [ %s]\n',spde_count, f, parameters_str);
+parameters_str = sprintf('%f ', parameters);
+fprintf('Iteration: %i  |  fobj = %f  |  parameters = [ %s]\n',spde_count, f, parameters_str);
+
+if isfield(opt,'optim_fig')
+    if opt.optim_fig
+        figure(20)
+        clf(20) 
+        hold on
+        for j = 1:data.ndata
+            plot(exp.t{j}, exp.c{j}, 'o');
+        end
+        ax = gca; ax.ColorOrderIndex = 1;  % reset color order in plot to match experimental and calculated points
+        for j = 1:data.ndata
+            plot(t, C{j}(:,end), '-', 'LineWidth', 1.5);
+        end
+        hold off;
+        xlabel('t (min)')
+        ylabel('C (mg/mL)')
+        drawnow;
+    end
+end
+
+
+%% Parameters parser
+function [isot_param, KLDF] = parseParameters(isoType, parameters)
+
+% Determine number of components
+nc = length(parameters(:,1));
+
+% Parse parameters depending on isotherm type
+if strcmp(isoType,'linear')
+    if length(parameters(1,:)) ~= 2
+        error('Invalid number of parameters.')
+    end
+    for i = 1:nc
+        isot_param(i,1) = parameters(i,1);
+        KLDF(i,1) = parameters(i,2);
+    end
+    
+elseif strcmp(isoType,'langmuir')
+    if length(parameters(1,:)) ~= 3
+        error('Invalid number of parameters.')
+    end
+    for i = 1:nc
+        isot_param(i,1) = parameters(i,1);
+        isot_param(i,2) = parameters(i,2);
+        KLDF(i,1) = parameters(i,3);
+    end
+    
+elseif strcmp(isoType,'linear-langmuir')
+    if length(parameters(1,:)) ~= 4
+        error('Invalid number of parameters.')
+    end
+    for i = 1:nc
+        isot_param(i,1) = parameters(i,1);
+        isot_param(i,2) = parameters(i,2);
+        isot_param(i,3) = parameters(i,3);
+        KLDF(i,1) = parameters(i,4);
+    end
+    
+else
+    error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
+end 
+    
