@@ -1,7 +1,7 @@
-function fitIsotherm(C, q, parameter, isotherm, objectFun)
+function [parameter, C, q, AARDev] = fitIsotherm(C, q, parameter, isotherm, opt)
 % ISOTHERMFIT  Fits an adsorption isotherm to experimental data. 
 %
-%   ISOTHERMFIT(C,q,parameter,isotherm,objectFun) returns the fitted parameters, the fitted isotherm plot, and the AARD(%) of the fitting.
+%   ISOTHERMFIT(C, q, parameter, isotherm, opt) returns the fitted parameters, the fitted isotherm plot, and the AARD(%) of the fitting.
 %   
 %   C          Concentration in the fluid phase.
 %
@@ -18,88 +18,97 @@ function fitIsotherm(C, q, parameter, isotherm, objectFun)
 %                 'toth' for Toth isotherm: q = parameter(1)*C/((1+(parameter(2)*C)^parameter(3))^(1/parameter(3)))
 %                 'linear' for linear isotherm: q = parameter(1)*C
 %
-%  objectFun  string containing the objective function to use in optimization. Default is an Absolute Average Relative Deviation objective function. Other option are:
-%                 'aard' to use an Absolute Average Relative Deviation objective function: f = sum(abs(qexp-qcalc)/qexp)/length(qexp)
-%                 'ls' to use a Least-Squares objective function: fval = sum((qexp-qcalc)^2)
+%  opt         options structure
+%              opt.objectFun  Select the objective function to use in optimization. Default is an Least-Squares function. Option are:
+%                 opt.objectFun = 'aard' to use an Absolute Average Relative Deviation objective function: f = sum(abs(qexp-qcalc)/qexp)/length(qexp)
+%                 opt.objectFun = 'ls' to use a Least-Squares objective function: fval = sum((qexp-qcalc)^2)
+%              opt.fig  Show figures if true (default) or don't show figures if false
 %
 % See also ...
 
 %% Validating inputs and setting default options
 if nargin < 3
-    fprintf(2,'\nMissing input arguments. Type "help fitIsotherm" for more information.\n');
+    fprintf(2,'Missing input arguments. Type "help fitIsotherm" for more information.\n');
     return;
 elseif nargin == 3
     isotherm = 'langmuir';
-    objectFun = 'ls';
+    opt.objectFun = 'ls';
+    opt.figs = true;
 elseif nargin == 4
-    objectFun = 'ls';
+    opt.objectFun = 'ls';
+    opt.fig = true;
 end
-fprintf('\n\n\nIsotherm: %s\n',isotherm);
+if ~isfield(opt, 'fig')
+    opt.fig = true;
+end
+if ~isfield(opt, 'objectFun')
+    opt.objectFun = 'ls';
+end
+
+fprintf('\nIsotherm: %s', isotherm);
 
 %% Optimization
 data.C = C;
 data.q = q;
 
 % If using the aard objective function, find zeros in q array and substitute by 1e-8
-if strcmp(objectFun,'aard')
+if strcmp(opt.objectFun,'aard')
     data.q(~data.q) = 1e-8;
 end
 
 % Creating a function handle to work with any isotherm
 isoT = str2func(isotherm);
-objF = str2func(objectFun);
+objF = str2func(opt.objectFun);
 
 % Parameter optimization using fminsearch
 [parameter, fval, exitflag] = fminsearch(objF, parameter, [], data, isoT);
 
-% Ploting the isotherm with the fitted parameter
-C = 0:(max(data.C)/(100-1)):max(data.C);
-q = isoT(C,parameter);
-if ishandle(51)==0
-    figure(51)
-    plot(data.C,data.q,'o');
-    hold all
-    plot(C,q,'-');
+C = 0:(max(data.C)/(250-1)):max(data.C);
+q = isoT(C, parameter);
 
-elseif ishandle(51)==1
-    hold all
-    plot(C,q,'-')
+% Ploting the isotherm with the fitted parameter
+if opt.fig
+    figure
+    plot(data.C, data.q, 'o');
+    hold on;
+    plot(C, q, '-', 'LineWidth', 2);
+    title(isotherm);
+    xlabel('\itC')
+    ylabel('\itq')
+    hold off;
 end
-xlabel('C')
-ylabel('q')
+
 
 % Calculation of AARD
 qcalc = isoT(data.C,parameter);
-data.q(~data.q)=1e-8;
-qcalc(~qcalc)=1e-8;
+data.q(~data.q) = 1e-8;
+qcalc(~qcalc) = 1e-8;
 AARDev = sum(abs(data.q-qcalc)./data.q)/length(data.C)*100;
 
 % Print results
 if exitflag==1
     fprintf('\nOptimization successful.\n');
 else
-    fprintf('\nOptimization failed (exitflag = %i)\n',exitflag);
+    fprintf('\nOptimization failed (exitflag = %i)\n', exitflag);
 end
-
-% fprintf(strcat('\nparameter = [ ',num2str(parameter),' ]'));
 
 if strcmp(isotherm,'langmuir')
-    fprintf('\na = %f\nb = %f\n',parameter(1),parameter(2));
+    fprintf('a = %f\nb = %f\n',parameter(1),parameter(2));
 elseif strcmp(isotherm,'freundlich')
-    fprintf('\nK = %f\nn = %f\n',parameter(1),parameter(2));
+    fprintf('K = %f\nn = %f\n',parameter(1),parameter(2));
 elseif strcmp(isotherm,'linearlangmuir')
-    fprintf('\nm = %f\na = %f\nb = %f\n',parameter(3),parameter(1),parameter(2));
+    fprintf('m = %f\na = %f\nb = %f\n',parameter(3),parameter(1),parameter(2));
 elseif strcmp(isotherm,'bilangmuir')
-    fprintf('\na1 = %f\nb1 = %f\na2 = %f\nb2 = %f\n',parameter(1),parameter(2),parameter(3),parameter(4));
+    fprintf('a1 = %f\nb1 = %f\na2 = %f\nb2 = %f\n',parameter(1),parameter(2),parameter(3),parameter(4));
 elseif strcmp(isotherm,'langmuirfreundlich')
-    fprintf('\na = %f\nb = %f\nn = %f\n',parameter(1),parameter(2),parameter(3));
+    fprintf('a = %f\nb = %f\nn = %f\n',parameter(1),parameter(2),parameter(3));
 elseif strcmp(isotherm,'toth')
-    fprintf('\na = %f\nb = %f\nv = %f\n',parameter(1),parameter(2),parameter(3));
+    fprintf('a = %f\nb = %f\nv = %f\n',parameter(1),parameter(2),parameter(3));
 elseif strcmp(isotherm,'linear')
-    fprintf('\nH = %f\n',parameter(1));
+    fprintf('H = %f\n',parameter(1));
 end
 
-fprintf('\nAARD = %.2f\n',AARDev)
+fprintf('AARD = %.2f %%\n\n',AARDev)
 
 
 
