@@ -114,7 +114,9 @@ for i=1:data.ndata
 end
 
 % Plot concentration history at column exit
-close(20)  % closes the figure created in every optimization iteration, if it exists
+if ishandle(20)
+    close(20)  % closes the figure created in every optimization iteration, if it exists
+end
 figure(10)
 hold on;
 for j = 1:data.ndata

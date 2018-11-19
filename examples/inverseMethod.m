@@ -13,8 +13,8 @@ Q =         20;  % mL/min, flow rate
 Dax =       4.779E-3;  % cm2/min, axial dispersion coefficient
 tpulse =    6/60;  % min, feed pulse duration. For a step injection set tpulse = tfinal
 tfinal =    10;  % min, final time for calculation
-opt.npz =   500;  % number of discretization points in z
-opt.npt =   500;  % number of discretization points in t
+opt.npz =   400;  % number of discretization points in z
+opt.npt =   400;  % number of discretization points in t
 
 %% Experimental data:
 exp_Cfeed(1) = 10;  % g/L, feed concentration
@@ -90,6 +90,6 @@ exp_tc{1} =    [4.418626142	0.000747641
 
 
 %% RUN EXAMPLE ABOVE
-addpath('../');  % add parent folder to path
+addpath('../', '../Models');  % add parent folder to path
 
 fitModel_isotherm_KLDF(exp_tc, exp_Cfeed, isoType, feedProf, parameter, L, Di, epsb, Q, Dax, tpulse, tfinal, opt)

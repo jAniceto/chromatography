@@ -85,10 +85,10 @@ time = {linspace(0,tfinal,500)' linspace(0,tfinal,500)'};
 [t, C] = klinkenberg(ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), time, opt);
 
 % Plot concentration history at column exit
-figure(10)
+figure
 hold on;
 for j = 1:data.ndata
-    plot(exp_tc{j}(:,1),exp_tc{j}(:,2),'o','MarkerSize',10);
+    plot(exp_tc{j}(:,1),exp_tc{j}(:,2),'o','MarkerSize',8);
 end
 ax = gca; ax.ColorOrderIndex = 1;
 for j = 1:data.ndata
@@ -99,7 +99,11 @@ set(gca,'fontsize',12)
 xtickformat('%.0f'); ytickformat('%.2f');
 xlabel('{\itt} (min)')
 ylabel('{\itC} (mg/mL)')
-    
+dim = [0.7 0.7 .3 .3];  % position for plot annotation
+str = sprintf('H = %.4f \nKLDF = %.2f min-1', parameter(1), parameter(2));  % annotation text
+annotation('textbox',dim,'String',str,'LineStyle','none')
+
+
 % Remove C = 0 values from experimental points in order to calculate AARD
 for j = 1:data.ndata
     exp_tc_aard{j} = exp_tc{j}(all(exp_tc{j},2),:);
