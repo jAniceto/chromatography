@@ -7,7 +7,8 @@ function gaussPeakFit(xy, peakSplit, a, b, c)
 % b is the position of the center of the peak (mean), and
 % c controls the width of the peak (standard deviation)
 % 
-% INPUTS:
+% INPUTS
+% ======
 % xy : matrix in the [x y] format containing x, y data points
 % 
 % peakSplit : vector containing the x points around which the data is
@@ -21,12 +22,14 @@ function gaussPeakFit(xy, peakSplit, a, b, c)
 % (b) for each peak.
 %
 % c : vector cointainig the initial estimations for the standard deviation 
-% of the peak (c) for each peak.
+% of the peak (c) for each peak. Note: a good way to provide a estimate for
+% c is to give the value of peak width at the baseline divided by 6.
 %
-% OUTPUTS:
+% OUTPUTS
+% =======
 % Exitflag : optimization status. If exitflag = 1, optimization converged
 %
-% Peak height (a),  Peak mean (b), and Peak width (c) : optimizaed
+% Peak height (a),  Peak mean (b), and Peak standard deviation (c) : optimizaed
 % parameters
 %
 % R : correlation coefficient calculated using Matlab corrcoef function
@@ -37,15 +40,13 @@ function gaussPeakFit(xy, peakSplit, a, b, c)
 %
 % Figure containing the original and fited data
 
-clc
-
 
 %% Default arguments (Example)
 if nargin == 0
     peakSplit = [4.9];    % x point around which data is split for the peaks
     a = [1 1];           % max height of the peak
     b = [4.5 5.5];         % position of the center of the peak (mean)
-    c = [0.5 0.5];         % width of the peak (standard deviation)
+    c = [0.5 0.5];         % standard deviation (width of the peak)
 
     % Peak data points (matrix in the [x y] format)
     xy = [3.400862695	0.000621997
@@ -202,7 +203,7 @@ for i = 1:Npeaks
     hold on
 
     % Output results
-    fprintf('Optimized parameters for peak %i: \nExitflag = %i \nPeak height (a) = %.4f \nPeak mean (b) = %.4f \nPeak width (c) = %.4f \n\n', i, exitflag, aOpt, bOpt, cOpt)
+    fprintf('Optimized parameters for peak %i: \nExitflag = %i \nPeak height (a) = %.4f \nPeak mean (b) = %.4f \nPeak standard deviation (c) = %.4f \n\n', i, exitflag, aOpt, bOpt, cOpt)
     fprintf('Fit quality for peak %i: \nCorrelation coefficient (R) = %.4f , for a p-value of %.4f \nAARD = %.4f \n\n', i, R(1,2), P(1,2), AARD)
     fprintf('Area under peak %i (A) = %.4f \n\n', i, Area)
     if i ~= Npeaks
