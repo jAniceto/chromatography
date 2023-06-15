@@ -1,5 +1,6 @@
-function sol=TDMlinear_pdepe_1c(feedProf,H,L,Di,epsb,epsp,Q,Cfeed,KLDF,Dax,tpulse,tfinal,opt)
-% Transport-Dispersive Model (TDM) 
+function sol = transport_linear_1c(feedProf,H,L,Di,epsb,epsp,Q,Cfeed,KLDF,tpulse,tfinal,opt)
+% Transport Model (TM) 
+% No axial dispersion
 % Linear isotherm model
 % Change feed profile between pulse (e.g.: chromatografic peak) and step (e.g.: breakthrough experiment)
 % Single component
@@ -20,7 +21,6 @@ if nargin == 0
     Q =         4;                      % mL/min, flow rate
     Cfeed = 	0.6*300/50;             % g/L, feed concentration
     KLDF =      13.3*60/10;             % min-1, linear driving force (LDF) mass transfer coefficient
-    Dax =       5.57e-3;                % cm2/min, axial dispersion coefficient
     tpulse =    50*0.001/4;             % min, feed pulse duration. For a step injection set tpulse = tfinal
     tfinal =    7;                      % min, final time for calculation
     opt.npz =   150;                    % number of discretization points in z
@@ -31,7 +31,7 @@ end
 
 %% Calculations
 addpath('../')
-data = struct('feedProf',feedProf,'H',H,'Cfeed',Cfeed,'npz',opt.npz,'npt',opt.npt,'Q',Q,'epsb',epsb,'epsp',epsp,'tpulse',tpulse,'KLDF',KLDF,'Dax',Dax);
+data = struct('feedProf',feedProf,'H',H,'Cfeed',Cfeed,'npz',opt.npz,'npt',opt.npt,'Q',Q,'epsb',epsb,'epsp',epsp,'tpulse',tpulse,'KLDF',KLDF);
 nc = length(Cfeed);
 data.nc=nc;
 A = pi()*Di^2/4; % cm2
@@ -108,7 +108,7 @@ global data
 
 c = [ 1 ; data.epsp/data.H+(1-data.epsp) ]; 
 
-f = [ data.Dax ; 0 ].* DuDx; 
+f = [ 0 ; 0 ].* DuDx; 
 
 s = [-data.ui*DuDx(1)-(1-data.epsb)/data.epsb*data.KLDF*(u(1)-u(2)/data.H) ; data.KLDF*(u(1)-u(2)/data.H) ]; 
 
@@ -127,11 +127,11 @@ Cin = setFeedProfile(data.feedProf, t, data.tpulse, data.Cfeed);
 
 % Left boundary conditions (z = 0)
 pl = [ Cin-ul(1) ; 0 ]; 
-ql = [ 1/data.ui ; 3.14 ]; 
+ql = [ 3.14 ; 3.14 ]; 
 
 % Right boundary conditions (z = L)
 pr = [ 0 ; 0]; 
-qr = [ 1/data.Dax ; 3.14 ];
+qr = [ 3.14 ; 3.14 ];
 
 
 %% Feed profile 

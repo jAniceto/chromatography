@@ -1,5 +1,5 @@
-function fitModel_isotherm_KLDF(exp_tc, exp_Cfeed, isoType, feedProf, parameter, L, Di, epsb, Q, Dax, tpulse, tfinal, opt)
-% Fit the chromatographic model to the data provided
+function fit_tdm(exp_tc, exp_Cfeed, isoType, feedProf, parameter, L, Di, epsb, Q, Dax, tpulse, tfinal, opt)
+% Fit the Transport-Dispersive Model to the data provided
 % Two parameters are fitted: H and KLDF
 % Any number of diferent experiments can be used by expanding the exp_Cfeed
 % and exp_tc to include additional data. Parameters are fitted to all data
@@ -103,11 +103,11 @@ options = optimset('PlotFcns',@optimplotfval,'TolFun',1e-6,'TolX',1e-6);
 
 % Calculate concentration history with optimized parameters
 if strcmp(data.isoType,'linear')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+    [sol, t, z, C] = transport_dispersive_ldf(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
 elseif strcmp(data.isoType,'langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+    [sol, t, z, C] = transport_dispersive_ldf(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
 elseif strcmp(data.isoType,'linear-langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+    [sol, t, z, C] = transport_dispersive_ldf(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
 else
     error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
 end
@@ -163,11 +163,11 @@ function f = fobj(parameter, exp, data, opt)
 global spde_count
 
 if strcmp(data.isoType,'linear')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+    [sol, t, z, C] = transport_dispersive_ldf(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
 elseif strcmp(data.isoType,'langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+    [sol, t, z, C] = transport_dispersive_ldf(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:2), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(3), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
 elseif strcmp(data.isoType,'linear-langmuir')
-    [sol, t, z, C] = LDF_pdepe(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
+    [sol, t, z, C] = transport_dispersive_ldf(data.isoType, data.feedProf, ones(1,data.ndata)*parameter(1:3), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(4), ones(1,data.ndata)*data.Dax, data.tpulse, data.tfinal, opt);
 else
     error('Invalid isotherm type. isoType must be "linear" or "langmuir" or "linear-langmuir"')
 end

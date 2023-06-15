@@ -1,4 +1,4 @@
-function [sol, t, x, C] = LDF_pdepe(isoType, feedProf, parameter, L, Di, epsb, Q, Cfeed, KLDF, Dax, tpulse, tfinal, opt)
+function [sol, t, x, C] = transport_dispersive_ldf(isoType, feedProf, parameter, L, Di, epsb, Q, Cfeed, KLDF, Dax, tpulse, tfinal, opt)
 % Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and 
 % using the Linear Driving Force Model (LDF) approach (Glauckauf and Coates, 1947)
 % Change the isotherm model by modifying the isotherm function
