@@ -3,18 +3,79 @@ A suite of chromatography programms including breakthrough curve modelling, isot
 
 
 ## Breif description of each function
+- `fit_klinkenberg.m` - Fit Klinkenberg model to experimental data
+- `models/klinkenberg.m` - Klinkenberg model
+
+
+## Chromatographic models
+
+### Klinkenberg model (`models/klinkenberg.m`)
+
+Klinkenberg provides an useful approximation to the analytical solution of the Convection-Dispersion model proposed by Anzelius for the case of a single solute, an initially clean bed, frontal loading and negligible axial dispersion. According to the Klinkenberg approximation the solute concentration respect to axial distance and time is given by:
+
+$
+\frac{C}{C_\mathrm{F}} \approx \frac{1}{2} [ 1 + \text{erf}( \sqrt{\tau} - \sqrt{\xi} + \frac{1}{8 \sqrt{\tau}} + \frac{1}{8 \sqrt{\xi}} ) ]
+$
+
+$
+\tau = K (t - \frac{z}{u_i})
+$
+
+$
+\xi = \frac{K H z}{u_i} (\frac{1 - \varepsilon_b}{\varepsilon_b})
+$
+
+
+## Fit functions
+
+### `fit_klinkenberg´
+
+Fit the Klinkenberg model (H and K parameters) to the data provided. 
+
+Arguments:
+
+- `exp_tc` : array of n-by-2 matrices
+  Data to fit the model. The array has m elements, each corresponding to a dataset. Each dataset has a n-by-2 matrix with t and c values (columns) and n datapoints (lines).
+- `exp_Cfeed` : vector with m elements (one per dataset)
+  Feed concentration.
+- `H_est` : float
+  Initial estimate for the Klinkenberg linear equilibrium constant.
+- `K_est` : float
+  Initial estimate for the Klinkenberg mass transfer coefficient.
+- `L` : float
+  Column length.
+- `Di` : float
+  Column diameter.
+- `epsb` : float
+  Bed porosity.
+- `Q` : float
+  Flow-rate.
+- `tfinal` : float
+  Final time for calculation. Should be higher than the highest time in the experimental datasets.
+- `opt` : struct
+  Options: `opt.fig` (true | false) specify if the model function should make a plot.
+
+NOTES
+-----
+Any number of diferent experiments ([t c] datasets) can be used by 
+expanding the ´exp_Cfeed´ and ´exp_tc´ arrays to include additional data. 
+Parameters are fitted to all data simultaneously.
+
+---
+
+## Breif description of each function
 * `gaussPeakFit` - Fits a gaussian curve to the data provided. Works for any number of peaks.
 * `gaussPeakFit_1p` - Same as gaussPeakFit but is a simpler version that only works for one peak.
 * `isotherm` - Library of isotherm function. Required in several programs. 
 * `fitModel_isotherm_KLDF` - Fits a chromatographic model to the data provided. Two parameters are fitted: H and KLDF.
 * `LDF_pdepe` - Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and using the Linear Driving Force Model (LDF) approach. Uses the Matlab pdepe function to solve the system of PDEs.
+* `Models/klinkenberg.m` - Same as `LDF_pdepe` but only works for one component
 * `Models/LDF_pdepe_1c.m` - Same as `LDF_pdepe` but only works for one component
 * `Models/LDF_pdepe_2c.m` - Same as `LDF_pdepe` but only works for two components
 * `Models/LDF_df_1c.m` - Transport-Dispersive Model (TDM) considering mass transfer resistence in the solid to be dominant and using the Linear Driving Force Model (LDF) approach. Uses the finite diferences methods to solve the system of PDEs.
 * `Models/EDMlinear_pdepe_1c.m` - Equilibrium-Dispersive Model (EDM) with linear isotherm for single component.
 * `Models/TDMlinear_pdepe_1c.m` - Transport-Dispersive Model (TDM) with linear isotherm for single component.
 * `Models/TMlinear_pdepe_1c.m` - Transport Model (TM) with linear isotherm for single component.
-
 
 ## Detailed description of the main functions
 

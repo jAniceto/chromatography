@@ -1,6 +1,47 @@
 function [t_, C, output] = klinkenberg(H, K, L, Di, epsb, Q, Cfeed, t, opt)
 % Klinkenberg model
-% Linear isotherm
+%
+% Klinkenberg provides an useful approximation to the analytical solution 
+% of the Convection-Dispersion model proposed by Anzelius for the case of 
+% a single solute, an initially clean bed, frontal loading and negligible 
+% axial dispersion. According to the Klinkenberg approximation the solute 
+% concentration respect to axial distance and time is given by:
+%
+% $$\frac{C}{C_\mathrm{F}} \approx \frac{1}{2} [ 1 + \text{erf}(\sqrt{\tau} - \sqrt{\xi} + \frac{1}{8 \sqrt{\tau}} + \frac{1}{8 \sqrt{\xi}} ) ]$$
+%
+% $$\tau = K (t - \frac{z}{u_i})$$
+% 
+% $$\xi = \frac{K H z}{u_i} (\frac{1 - \varepsilon_b}{\varepsilon_b})$$
+%
+% ARGUMENTS
+% ---------
+% H : float
+%   Linear isotherm parameter.
+% K : float
+%   Mass transfer coefficient.
+% L : float
+%   Column length.
+% Di : float
+%   Column diameter.
+% epsb : float
+%   Bed porosity.
+% Q : float
+%   Flow-rate.
+% Cfeed : float
+%   Feed concentration.
+% t : float
+%   Values of the time coordinate for which the model should be calculated.
+% opt : struct
+%   Options:
+%       opt.fig (true | false) Whether to show plots.
+%       plot.
+% 
+% REFERENCES
+% ----------
+% A. Klinkenberg, Ind. Eng. Chem., 46, 2285–2289 (1954).
+%
+% J.D. Seader, E.J. Henley, D.K. Roper. Separation Process Principles. 
+% John Wiley & Sons, Inc., 3rd edition, 2011.
 
 
 %% Default arguments (Example)
