@@ -81,7 +81,11 @@ options = optimset('PlotFcns',@optimplotfval,'TolFun',1e-8,'TolX',1e-8);
 [parameter, fval, exitflag] = fminsearch(@fobj, parameter, options, exp, data, opt)
 
 % Calculate concentration history with optimized parameters
-time = {linspace(0,tfinal,500)' linspace(0,tfinal,500)'};
+% time = {linspace(0,tfinal,500)' linspace(0,tfinal,500)' linspace(0,tfinal,500)'};
+tvector = linspace(0,tfinal,500)';
+for l = 1:length(exp_tc)
+    time{l} = tvector;
+end
 [t, C] = klinkenberg(ones(1,data.ndata)*parameter(1), data.L, data.Di, data.epsb, data.Q, exp.Cfeed, ones(1,data.ndata)*parameter(2), time, opt);
 
 % Plot concentration history at column exit
