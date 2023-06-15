@@ -13,17 +13,11 @@ A suite of chromatography programms including breakthrough curve modelling, isot
 
 Klinkenberg provides an useful approximation to the analytical solution of the Convection-Dispersion model proposed by Anzelius for the case of a single solute, an initially clean bed, frontal loading and negligible axial dispersion. According to the Klinkenberg approximation the solute concentration respect to axial distance and time is given by:
 
-$
-\frac{C}{C_\mathrm{F}} \approx \frac{1}{2} [ 1 + \text{erf}( \sqrt{\tau} - \sqrt{\xi} + \frac{1}{8 \sqrt{\tau}} + \frac{1}{8 \sqrt{\xi}} ) ]
-$
+$$\frac{C}{C_\mathrm{F}} \approx \frac{1}{2} [ 1 + \text{erf}( \sqrt{\tau} - \sqrt{\xi} + \frac{1}{8 \sqrt{\tau}} + \frac{1}{8 \sqrt{\xi}} ) ]$$
 
-$
-\tau = K (t - \frac{z}{u_i})
-$
+$$\tau = K (t - \frac{z}{u_i})$$
 
-$
-\xi = \frac{K H z}{u_i} (\frac{1 - \varepsilon_b}{\varepsilon_b})
-$
+$$\xi = \frac{K H z}{u_i} (\frac{1 - \varepsilon_b}{\varepsilon_b})$$
 
 
 ## Fit functions
@@ -35,31 +29,48 @@ Fit the Klinkenberg model (H and K parameters) to the data provided.
 Arguments:
 
 - `exp_tc` : array of n-by-2 matrices
+  
   Data to fit the model. The array has m elements, each corresponding to a dataset. Each dataset has a n-by-2 matrix with t and c values (columns) and n datapoints (lines).
+
 - `exp_Cfeed` : vector with m elements (one per dataset)
+
   Feed concentration.
+
 - `H_est` : float
+
   Initial estimate for the Klinkenberg linear equilibrium constant.
+
 - `K_est` : float
+
   Initial estimate for the Klinkenberg mass transfer coefficient.
+
 - `L` : float
+
   Column length.
+
 - `Di` : float
+
   Column diameter.
+
 - `epsb` : float
+
   Bed porosity.
+
 - `Q` : float
+
   Flow-rate.
+
 - `tfinal` : float
+
   Final time for calculation. Should be higher than the highest time in the experimental datasets.
+
 - `opt` : struct
+
   Options: `opt.fig` (true | false) specify if the model function should make a plot.
 
-NOTES
------
-Any number of diferent experiments ([t c] datasets) can be used by 
-expanding the ´exp_Cfeed´ and ´exp_tc´ arrays to include additional data. 
-Parameters are fitted to all data simultaneously.
+Notes:
+
+Any number of diferent experiments ([t c] datasets) can be used by expanding the ´exp_Cfeed´ and ´exp_tc´ arrays to include additional data. Parameters are fitted to all data simultaneously.
 
 ---
 
@@ -108,6 +119,7 @@ LDF_pdepe models a chromatographic experiement according to the Transport-Disper
 `tfinal` : final time for calculation (min)
 
 `opt` : structure containig calculation options: `opt.npz`: number of discretization points in `z`; 
+
 `opt.npt`: number of discretization points in `t`.
 
 
