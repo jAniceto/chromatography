@@ -89,7 +89,7 @@ end
 %% Calculations
 global fobj_evals
 
-addpath('Models/');  % add models subfolder to path
+addpath('models/');  % add models subfolder to path
 tic
 data = struct('L',L, 'Di',Di, 'epsb',epsb, 'Q',Q);
 exp = struct('Cfeed', exp_Cfeed);
